@@ -39,7 +39,7 @@ public class DataUtil {
         post1.setTitulo("Docker");
 
         PostModel post2 = new PostModel();
-        post2.setAutor("Xuxa");
+        post2.setAutor("Ben10");
         post2.setData(LocalDate.now());
         post2.setTexto("Lorem Ipsum is simply dummy text of the printing and typesetting industry. "
                 + "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, "
