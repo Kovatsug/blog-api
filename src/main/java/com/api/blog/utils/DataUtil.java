@@ -2,6 +2,7 @@ package com.api.blog.utils;
 
 import com.api.blog.Repository.PostRepository;
 import com.api.blog.model.PostModel;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,7 @@ public class DataUtil {
     @Autowired
     PostRepository postRepository;
 
-    // @PostConstruct
+    @PostConstruct
     public void savePosts(){
 
         List<PostModel> postList = new ArrayList<>();
