@@ -3,6 +3,7 @@ package com.api.blog.controller;
 import com.api.blog.dto.request.PostRequestDto;
 import com.api.blog.dto.response.PostResponseDto;
 import com.api.blog.service.PostService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +32,10 @@ public class PostController {
         return ResponseEntity.ok(postService.findById(id));
     }
 
-    @PostMapping("/")
-    public ResponseEntity<PostResponseDto> newPost(@RequestBody PostRequestDto request){
-        return ResponseEntity.status(201).body(postService.createPost(request));
+    @PostMapping("/newpost")
+    public ResponseEntity<PostResponseDto> createPost(@RequestBody @Valid PostRequestDto request){
+        PostResponseDto created = postService.createPost(request);
+        return ResponseEntity.status(201).body(created);
     }
 
 }
