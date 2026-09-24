@@ -37,6 +37,11 @@ public class PostModel implements Serializable {
     private List<ComentarioModel> comentarios = new ArrayList<>();
 
 
+    public void adicionarComentario(ComentarioModel comentario){
+        comentarios.add(comentario);
+        comentario.setPost(this);
+    }
+
     public PostModel() {
     }
 

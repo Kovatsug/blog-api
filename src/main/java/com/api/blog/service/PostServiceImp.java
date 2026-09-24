@@ -1,9 +1,14 @@
 package com.api.blog.service;
 
+import com.api.blog.Repository.ComentarioRepository;
 import com.api.blog.Repository.PostRepository;
+import com.api.blog.dto.request.ComentarioRequestDto;
 import com.api.blog.dto.request.PostRequestDto;
+import com.api.blog.dto.response.ComentarioResponseDto;
 import com.api.blog.dto.response.PostResponseDto;
+import com.api.blog.mapper.ComentarioMapper;
 import com.api.blog.mapper.PostMapper;
+import com.api.blog.model.ComentarioModel;
 import com.api.blog.model.PostModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,13 +23,17 @@ import java.util.UUID;
 public class PostServiceImp implements PostService {
 
     private final PostRepository postRepository;
-
     private final PostMapper postMapper;
 
+    private final ComentarioRepository comentarioRepository;
+    private final ComentarioMapper comentarioMapper;
+
     @Autowired
-    public PostServiceImp(PostRepository postRepository, PostMapper postMapper) {
+    public PostServiceImp(PostRepository postRepository, PostMapper postMapper, ComentarioRepository comentarioRepository, ComentarioMapper comentarioMapper) {
         this.postRepository = postRepository;
         this.postMapper = postMapper;
+        this.comentarioRepository = comentarioRepository;
+        this.comentarioMapper = comentarioMapper;
     }
 
     @Override
@@ -58,5 +67,18 @@ public class PostServiceImp implements PostService {
         PostModel post = postMapper.toEntity(dto);
         PostModel saved = postRepository.save(post);
         return postMapper.toDto(saved);
+    }
+
+    @Override
+    @Transactional
+    public ComentarioResponseDto addComentario(UUID postId, ComentarioRequestDto dto){
+        Optional<PostModel> optionalPost = postRepository.findById(postId);
+        PostModel post = optionalPost.get();
+
+        ComentarioModel comentario = new ComentarioModel(dto.comentario(), post);
+
+        post.adicionarComentario(comentario);
+        ComentarioModel saved = comentarioRepository.save(comentario);
+        return comentarioMapper.toDto(saved);
     }
 }

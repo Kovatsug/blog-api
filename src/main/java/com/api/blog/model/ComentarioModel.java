@@ -31,9 +31,9 @@ public class ComentarioModel implements Serializable {
     public ComentarioModel() {
     }
 
-    public ComentarioModel(PostModel post, String comentario) {
-        this.post = post;
+    public ComentarioModel(String comentario, PostModel post) {
         this.comentario = comentario;
+        this.post = post;
         this.data = LocalDate.now();
     }
 

@@ -8,5 +8,4 @@ public record ComentarioResponseDto(
         UUID id,
         LocalDate data,
         String comentario
-
 ) { }
