@@ -5,10 +5,12 @@ import jakarta.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "TB_POST")
+@Table(name = "post")
 public class PostModel implements Serializable {
 
     @Serial
@@ -30,6 +32,10 @@ public class PostModel implements Serializable {
     @Lob
     @Column(columnDefinition = "text")
     private String texto;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ComentarioModel> comentarios = new ArrayList<>();
+
 
     public PostModel() {
     }
@@ -72,6 +78,14 @@ public class PostModel implements Serializable {
 
     public void setTexto(String texto) {
         this.texto = texto;
+    }
+
+    public List<ComentarioModel> getComentarios() {
+        return comentarios;
+    }
+
+    public void setComentarios(List<ComentarioModel> comentarios) {
+        this.comentarios = comentarios;
     }
 
     public PostModel(String autor, String titulo, String texto) {
