@@ -1,6 +1,8 @@
 package com.api.blog.controller;
 
+import com.api.blog.dto.request.ComentarioRequestDto;
 import com.api.blog.dto.request.PostRequestDto;
+import com.api.blog.dto.response.ComentarioResponseDto;
 import com.api.blog.dto.response.PostResponseDto;
 import com.api.blog.service.PostService;
 import jakarta.validation.Valid;
@@ -38,6 +40,9 @@ public class PostController {
         return ResponseEntity.status(201).body(created);
     }
 
-
+    @PostMapping("/comentarios/{postId}")
+    public ResponseEntity<ComentarioResponseDto> createComentario(@PathVariable UUID postId, @RequestBody @Valid ComentarioRequestDto dto){
+        return ResponseEntity.status(201).body(postService.addComentario(postId,dto));
+    }
 
 }
