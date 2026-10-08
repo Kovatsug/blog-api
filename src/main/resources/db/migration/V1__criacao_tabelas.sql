@@ -9,3 +9,12 @@ CREATE TABLE post (
     texto TEXT NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE comentario (
+    id BINARY(16) NOT NULL,
+    data DATE NOT NULL,
+    comentario TEXT NOT NULL,
+    post_id BINARY(16) NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (post_id) REFERENCES post(id)
+);
