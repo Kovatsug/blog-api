@@ -11,6 +11,9 @@ import com.api.blog.mapper.PostMapper;
 import com.api.blog.model.ComentarioModel;
 import com.api.blog.model.PostModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,17 +39,38 @@ public class PostServiceImp implements PostService {
         this.comentarioMapper = comentarioMapper;
     }
 
+//    @Override
+//    @Transactional(readOnly = true)
+//    public Page<PostResponseDto> findAll(Pageable pageable) {
+//        List<PostModel> posts = postRepository.findAll();
+//        List<PostResponseDto> dtos = new ArrayList<>();
+//
+//        for (PostModel post : posts){
+//            dtos.add(postMapper.toDto(post));
+//        }
+//
+//        return new PageImpl<>(dtos);
+//    }
+
     @Override
     @Transactional(readOnly = true)
-    public List<PostResponseDto> findAll() {
-        List<PostModel> posts = postRepository.findAll();
-        List<PostResponseDto> dtos = new ArrayList<>();
+    public Page<PostResponseDto> findAll(Pageable pageable, String titulo) {
 
-        for (PostModel post : posts){
-            dtos.add(postMapper.toDto(post));
+        Page<PostModel> posts;
+        if (titulo==null || titulo.isBlank()){
+            posts = postRepository.findAll(pageable);
+        } else {
+            posts = postRepository.findByTituloContainigIgnoreCase(titulo,pageable);
         }
 
-        return dtos;
+        List<PostResponseDto> response = new ArrayList<>();
+
+        for (PostModel post : posts.getContent()){
+            PostResponseDto dto = postMapper.toDto(post);
+            response.add(dto);
+        }
+
+        return new PageImpl<>(response, pageable, posts.getTotalElements());
     }
 
     @Override

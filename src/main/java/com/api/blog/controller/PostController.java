@@ -9,6 +9,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,8 +33,12 @@ public class PostController {
 
     @Operation(summary = "Lista posts com paginação")
     @GetMapping("/posts")
-    public ResponseEntity<List<PostResponseDto>> getAllPosts(){
-        return ResponseEntity.ok(postService.findAll());
+    public ResponseEntity<Page<PostResponseDto>> getAllPosts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size, @RequestParam(defaultValue = "data") String sortBy, @RequestParam(defaultValue = "desc" ) String direction, @RequestParam(required = false) String titulo){
+
+        Sort sort = direction.equalsIgnoreCase("asc")? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page,size,sort);
+        return ResponseEntity.ok(postService.findAll(pageable, titulo));
     }
 
     @Operation(summary = "Retorna post pelo id")
