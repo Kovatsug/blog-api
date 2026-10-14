@@ -1,0 +1,2 @@
+ALTER TABLE post
+    ADD COLUMN categoria VARCHAR(100) NOT NULL DEFAULT 'Geral';

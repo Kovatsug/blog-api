@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public interface PostService {
 
-    //Page<PostResponseDto> findAll(Pageable pageable);
+    Page<PostResponseDto> findAll(Pageable pageable);
 
     Page<PostResponseDto> findAll(Pageable pageable, String titulo);
 

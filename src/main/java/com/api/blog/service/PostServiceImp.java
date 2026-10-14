@@ -12,16 +12,10 @@ import com.api.blog.model.ComentarioModel;
 import com.api.blog.model.PostModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -32,46 +26,46 @@ public class PostServiceImp implements PostService {
 
     private final ComentarioRepository comentarioRepository;
     private final ComentarioMapper comentarioMapper;
+    private final MessageService messageService;
 
     @Autowired
-    public PostServiceImp(PostRepository postRepository, PostMapper postMapper, ComentarioRepository comentarioRepository, ComentarioMapper comentarioMapper) {
+    public PostServiceImp(PostRepository postRepository, PostMapper postMapper, ComentarioRepository comentarioRepository, ComentarioMapper comentarioMapper, MessageService messageService) {
         this.postRepository = postRepository;
         this.postMapper = postMapper;
         this.comentarioRepository = comentarioRepository;
         this.comentarioMapper = comentarioMapper;
+        this.messageService = messageService;
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<PostResponseDto> findAll(Pageable pageable, String titulo) {
-
         Page<PostModel> posts;
-        if (titulo==null || titulo.isBlank()){
+
+        if (titulo == null || titulo.isBlank()) {
             posts = postRepository.findAll(pageable);
         } else {
-            posts = postRepository.findByTituloContainigIgnoreCase(titulo,pageable);
+            posts = postRepository.findByTituloContainingIgnoreCase(titulo, pageable);
         }
 
-        List<PostResponseDto> response = new ArrayList<>();
+        return posts.map(postMapper::toDto);
+    }
 
-        for (PostModel post : posts.getContent()){
-            PostResponseDto dto = postMapper.toDto(post);
-            response.add(dto);
-        }
-
-        return new PageImpl<>(response, pageable, posts.getTotalElements());
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PostResponseDto> findAll(Pageable pageable) {
+        return postRepository.findAll(pageable)
+                .map(postMapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public PostResponseDto findById(UUID id) {
-        Optional<PostModel> optionalPost = postRepository.findById(id);
+        PostModel post = postRepository.findById(id)
+            .orElseThrow(() -> new RecursoNaoEncontradoException(
+                messageService.getMessage("post.nao.encontrado", id)));
 
-        if (optionalPost.isEmpty()) throw new RuntimeException("Post não encontrado com ID: "+id);
-
-        PostModel post = optionalPost.get();
         return postMapper.toDto(post);
-
     }
 
     @Override
@@ -85,8 +79,9 @@ public class PostServiceImp implements PostService {
     @Override
     @Transactional
     public ComentarioResponseDto addComentario(UUID postId, ComentarioRequestDto dto){
-        Optional<PostModel> optionalPost = postRepository.findById(postId);
-        PostModel post = optionalPost.get();
+        PostModel post = postRepository.findById(postId)
+            .orElseThrow(() -> new RecursoNaoEncontradoException(
+                messageService.getMessage("post.nao.encontrado", postId)));
 
         ComentarioModel comentario = new ComentarioModel(dto.comentario(), post);
 
@@ -99,8 +94,8 @@ public class PostServiceImp implements PostService {
     @Transactional
     public PostResponseDto updatePost(UUID id, PostRequestDto dto) {
         PostModel post = postRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Post não encontrado"));
+            .orElseThrow(() -> new RecursoNaoEncontradoException(
+                messageService.getMessage("post.nao.encontrado", id)));
 
         post.setAutor(dto.autor());
         post.setTitulo(dto.titulo());
@@ -113,8 +108,8 @@ public class PostServiceImp implements PostService {
     @Transactional
     public void deletePost(UUID id) {
         PostModel post = postRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Post não encontrado"));
+            .orElseThrow(() -> new RecursoNaoEncontradoException(
+                messageService.getMessage("post.nao.encontrado", id)));
 
         postRepository.delete(post);
     }
@@ -124,16 +119,16 @@ public class PostServiceImp implements PostService {
     public ComentarioResponseDto updateComentario(
             UUID postId, UUID comentarioId, ComentarioRequestDto dto) {
         postRepository.findById(postId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Post não encontrado"));
+            .orElseThrow(() -> new RecursoNaoEncontradoException(
+                messageService.getMessage("post.nao.encontrado", postId)));
 
         ComentarioModel comentario = comentarioRepository.findById(comentarioId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Comentário não encontrado"));
+            .orElseThrow(() -> new RecursoNaoEncontradoException(
+                messageService.getMessage("comentario.nao.encontrado", comentarioId)));
 
         if (!comentario.getPost().getId().equals(postId)) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Comentário não encontrado neste post");
+            throw new RecursoNaoEncontradoException(
+                messageService.getMessage("comentario.nao.encontrado.no.post", comentarioId, postId));
         }
 
         comentario.setComentario(dto.comentario());
@@ -144,16 +139,16 @@ public class PostServiceImp implements PostService {
     @Transactional
     public void deleteComentario(UUID postId, UUID comentarioId) {
         postRepository.findById(postId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Post não encontrado"));
+            .orElseThrow(() -> new RecursoNaoEncontradoException(
+                messageService.getMessage("post.nao.encontrado", postId)));
 
         ComentarioModel comentario = comentarioRepository.findById(comentarioId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Comentário não encontrado"));
+            .orElseThrow(() -> new RecursoNaoEncontradoException(
+                messageService.getMessage("comentario.nao.encontrado", comentarioId)));
 
         if (!comentario.getPost().getId().equals(postId)) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Comentário não encontrado neste post");
+            throw new RecursoNaoEncontradoException(
+                messageService.getMessage("comentario.nao.encontrado.no.post", comentarioId, postId));
         }
 
         comentarioRepository.delete(comentario);

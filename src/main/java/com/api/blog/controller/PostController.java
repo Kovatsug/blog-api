@@ -48,7 +48,7 @@ public class PostController {
     }
 
     @Operation(summary = "Criar post")
-    @PostMapping("/newpost")
+    @PostMapping("/posts")
     public ResponseEntity<PostResponseDto> createPost(@RequestBody @Valid PostRequestDto request){
         PostResponseDto created = postService.createPost(request);
         return ResponseEntity.status(201).body(created);
