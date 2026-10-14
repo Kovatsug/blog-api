@@ -16,6 +16,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,19 +40,6 @@ public class PostServiceImp implements PostService {
         this.comentarioRepository = comentarioRepository;
         this.comentarioMapper = comentarioMapper;
     }
-
-//    @Override
-//    @Transactional(readOnly = true)
-//    public Page<PostResponseDto> findAll(Pageable pageable) {
-//        List<PostModel> posts = postRepository.findAll();
-//        List<PostResponseDto> dtos = new ArrayList<>();
-//
-//        for (PostModel post : posts){
-//            dtos.add(postMapper.toDto(post));
-//        }
-//
-//        return new PageImpl<>(dtos);
-//    }
 
     @Override
     @Transactional(readOnly = true)
@@ -105,4 +94,69 @@ public class PostServiceImp implements PostService {
         ComentarioModel saved = comentarioRepository.save(comentario);
         return comentarioMapper.toDto(saved);
     }
+
+    @Override
+    @Transactional
+    public PostResponseDto updatePost(UUID id, PostRequestDto dto) {
+        PostModel post = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Post não encontrado"));
+
+        post.setAutor(dto.autor());
+        post.setTitulo(dto.titulo());
+        post.setTexto(dto.texto());
+
+        return postMapper.toDto(postRepository.save(post));
+    }
+
+    @Override
+    @Transactional
+    public void deletePost(UUID id) {
+        PostModel post = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Post não encontrado"));
+
+        postRepository.delete(post);
+    }
+
+    @Override
+    @Transactional
+    public ComentarioResponseDto updateComentario(
+            UUID postId, UUID comentarioId, ComentarioRequestDto dto) {
+        postRepository.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Post não encontrado"));
+
+        ComentarioModel comentario = comentarioRepository.findById(comentarioId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Comentário não encontrado"));
+
+        if (!comentario.getPost().getId().equals(postId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Comentário não encontrado neste post");
+        }
+
+        comentario.setComentario(dto.comentario());
+        return comentarioMapper.toDto(comentarioRepository.save(comentario));
+    }
+
+    @Override
+    @Transactional
+    public void deleteComentario(UUID postId, UUID comentarioId) {
+        postRepository.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Post não encontrado"));
+
+        ComentarioModel comentario = comentarioRepository.findById(comentarioId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Comentário não encontrado"));
+
+        if (!comentario.getPost().getId().equals(postId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Comentário não encontrado neste post");
+        }
+
+        comentarioRepository.delete(comentario);
+    }
+
 }

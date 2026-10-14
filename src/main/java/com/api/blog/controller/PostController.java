@@ -60,4 +60,33 @@ public class PostController {
         return ResponseEntity.status(201).body(postService.addComentario(postId,dto));
     }
 
+    @PutMapping("/posts/{id}")
+    public ResponseEntity<PostResponseDto> updatePost(
+            @PathVariable UUID id,
+            @RequestBody @Valid PostRequestDto request) {
+        return ResponseEntity.ok(postService.updatePost(id, request));
+    }
+
+    @DeleteMapping("/posts/{id}")
+    public ResponseEntity<Void> deletePost(@PathVariable UUID id) {
+        postService.deletePost(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/posts/{postId}/comentarios/{comentarioId}")
+    public ResponseEntity<ComentarioResponseDto> updateComentario(
+            @PathVariable UUID postId,
+            @PathVariable UUID comentarioId,
+            @RequestBody @Valid ComentarioRequestDto dto) {
+        return ResponseEntity.ok(
+                postService.updateComentario(postId, comentarioId, dto));
+    }
+
+    @DeleteMapping("/posts/{postId}/comentarios/{comentarioId}")
+    public ResponseEntity<Void> deleteComentario(
+            @PathVariable UUID postId,
+            @PathVariable UUID comentarioId) {
+        postService.deleteComentario(postId, comentarioId);
+        return ResponseEntity.noContent().build();
+    }
 }
