@@ -29,7 +29,6 @@ public class PostModel implements Serializable {
     @Column(nullable = false, length = 100)
     private String titulo;
 
-    @Lob
     @Column(columnDefinition = "text")
     private String texto;
 
