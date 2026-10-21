@@ -4,7 +4,7 @@ package com.api.blog.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "useario")
+@Table(name = "usuario")
 public class Usuario {
 
     @Id
