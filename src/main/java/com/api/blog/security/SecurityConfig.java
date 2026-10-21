@@ -36,21 +36,24 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder){
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password(passwordEncoder.encode("1234"))
-                .roles("ADMIN")
-                .build();
 
-        UserDetails user = User.builder()
-                .username("usuario")
-                .password(passwordEncoder.encode("1234"))
-                .roles("USER")
-                .build();
 
-        return new InMemoryUserDetailsManager(admin,user);
-    }
+
+//    @Bean
+//    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder){
+//        UserDetails admin = User.builder()
+//                .username("admin")
+//                .password(passwordEncoder.encode("1234"))
+//                .roles("ADMIN")
+//                .build();
+//
+//        UserDetails user = User.builder()
+//                .username("usuario")
+//                .password(passwordEncoder.encode("1234"))
+//                .roles("USER")
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(admin,user);
+//    }
 
 }
